@@ -22,25 +22,25 @@
 #** FOR ANY DAMAGES OR OTHER LIABILITY, WHETHER IN CONTRACT, TORT OR OTHERWISE,
 #** ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 #** DEALINGS IN THE SOFTWARE.
-#** -LICENSE-END- 
+#** -LICENSE-END-
 
 CC=g++
-SDK_PATH=../../include
-CFLAGS=-Wno-multichar -I $(SDK_PATH) -fno-rtti
+SDK_PATH=include
+CFLAGS=-Wno-multichar -I $(SDK_PATH) -fno-rtti -g3
 LDFLAGS=-lm -ldl -lpthread
 
 HEADERS= \
 	Config.h \
-	TestPattern.h \
+	Play.h \
 	VideoFrame3D.h
 
 SRCS= \
 	Config.cpp \
-	TestPattern.cpp \
+	Play.cpp \
 	VideoFrame3D.cpp
 
-TestPattern: $(SRCS) $(HEADERS) $(SDK_PATH)/DeckLinkAPIDispatch.cpp
-	$(CC) -o TestPattern $(SRCS) $(SDK_PATH)/DeckLinkAPIDispatch.cpp $(CFLAGS) $(LDFLAGS)
+Play: $(SRCS) $(HEADERS) $(SDK_PATH)/DeckLinkAPIDispatch.cpp
+	$(CC) -o Play $(SRCS) $(SDK_PATH)/DeckLinkAPIDispatch.cpp $(CFLAGS) $(LDFLAGS)
 
 clean:
-	rm -f TestPattern
+	rm -f Play

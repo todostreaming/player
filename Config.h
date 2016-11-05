@@ -46,6 +46,9 @@ public:
 	int						m_audioChannels;
 	int						m_audioSampleDepth;
 
+        int m_video;
+        int m_audio;
+
 	BMDVideoOutputFlags		m_outputFlags;
 	BMDPixelFormat			m_pixelFormat;
 

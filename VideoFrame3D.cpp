@@ -36,6 +36,18 @@ static inline bool CompareREFIID(const REFIID& ref1, const REFIID& ref2)
 	return memcmp(&ref1, &ref2, sizeof(REFIID)) == 0;
 }
 
+static inline int OSAtomicIncrement32(volatile int *valPtr)
+{
+	// gcc atomic operation builtin
+	return __sync_add_and_fetch(valPtr, 1);
+}
+
+static inline int OSAtomicDecrement32(volatile int *valPtr)
+{
+	// gcc atomic operation builtin
+	return __sync_sub_and_fetch(valPtr, 1);
+}
+
 // IUnknown methods
 HRESULT VideoFrame3D::QueryInterface(REFIID iid, LPVOID *ppv)
 {
@@ -57,14 +69,12 @@ HRESULT VideoFrame3D::QueryInterface(REFIID iid, LPVOID *ppv)
 
 ULONG VideoFrame3D::AddRef(void)
 {
-	// gcc atomic operation builtin
-	return __sync_add_and_fetch(&m_refCount, 1);
+	return OSAtomicIncrement32(&m_refCount);
 }
 
 ULONG VideoFrame3D::Release(void)
 {
-	// gcc atomic operation builtin
-	ULONG newRefValue = __sync_sub_and_fetch(&m_refCount, 1);
+	ULONG newRefValue = OSAtomicDecrement32(&m_refCount);
 	if (!newRefValue)
 		delete this;
 	return newRefValue;

@@ -28,6 +28,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <fcntl.h>
 #include <pthread.h>
 #include <unistd.h>
 #include "Config.h"
@@ -37,6 +38,10 @@ BMDConfig::BMDConfig() :
 	m_displayModeIndex(-1),
 	m_audioChannels(2),
 	m_audioSampleDepth(16),
+    m_video(-1),
+    m_audio(-1),
+	m_videoOutputFile(),
+	m_audioOutputFile(),
 	m_outputFlags(bmdVideoOutputFlagDefault),
 	m_pixelFormat(bmdFormat8BitYUV),
 	m_deckLinkName(),
@@ -58,7 +63,7 @@ bool BMDConfig::ParseArguments(int argc,  char** argv)
 	int		ch;
 	bool	displayHelp = false;
 
-	while ((ch = getopt(argc, argv, "d:?h3c:s:f:a:m:n:p:t:")) != -1)
+	while ((ch = getopt(argc, argv, "d:?h3c:s:f:a:v:m:n:p:t:")) != -1)
 	{
 		switch (ch)
 		{
@@ -105,13 +110,24 @@ bool BMDConfig::ParseArguments(int argc,  char** argv)
 			case '3':
 				m_outputFlags |= bmdVideoOutputDualStream3D;
 				break;
-
-			case '?':
+            case 'v':
+                //m_video = open(optarg, O_RDONLY);
+				m_videoOutputFile = optarg;
+                break;
+            case 'a':
+                //m_audio = open(optarg, O_RDONLY);
+				m_audioOutputFile = optarg;
+                break;
+            case '?':
 			case 'h':
 				displayHelp = true;
 		}
 	}
-
+/*
+        if (m_video < 0 && m_audio < 0) {
+                DisplayUsage(1);
+        }
+*/
 	if (m_deckLinkIndex < 0)
 	{
 		fprintf(stderr, "You must select a device\n");
@@ -233,7 +249,7 @@ void BMDConfig::DisplayUsage(int status)
 	char*							displayModeName;
 
 	fprintf(stderr,
-		"Usage: TestPattern -d <device id> -m <mode id> [OPTIONS]\n"
+		"Usage: Play -d <device id> -m <mode id> [OPTIONS]\n"
 		"\n"
 		"    -d <device id>:\n"
 	);
@@ -326,13 +342,15 @@ bail:
 		"         0:  8 bit YUV (4:2:2) (default)\n"
 		"         1:  10 bit YUV (4:2:2)\n"
 		"         2:  10 bit RGB (4:4:4)\n"
+		"    -v <video_file>      Video file (raw format)\n"
+		"    -a <audio_file>      Audio file (raw format)\n"
 		"    -c <channels>        Audio Channels (2, 8 or 16 - default is 2)\n"
 		"    -s <depth>           Audio Sample Depth (16 or 32 - default is 16)\n"
 		"    -3                   Playback Stereoscopic 3D (Requires 3D Hardware support)\n"
 		"\n"
 		"Output a test pattern eg:\n"
 		"\n"
-		"    TestPattern -d 0 -m 2 \n"
+		"    Play -d 0 -m 1 -a audio.raw -v video.raw\n"
 	);
 
 	if (deckLinkIterator != NULL)
@@ -352,7 +370,7 @@ bail:
 
 void BMDConfig::DisplayConfiguration()
 {
-	fprintf(stderr, "Capturing with the following configuration:\n"
+	fprintf(stderr, "Playing with the following configuration:\n"
 		" - Playback device: %s\n"
 		" - Video mode: %s %s\n"
 		" - Pixel format: %s\n"
